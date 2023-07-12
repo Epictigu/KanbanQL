@@ -1,5 +1,5 @@
 <template>
-    <div class="ticket-card">
+    <div class="ticket-card" v-if="ticket">
         <span class="ticket-name">{{ ticket.name }}</span>
     </div>
 </template>
