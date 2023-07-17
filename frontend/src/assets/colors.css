@@ -1,3 +1,15 @@
 :root {
+    --main-background-color: #fafbfc;
 
+    --navigation-border-color: #dedede;
+    --navigation-background-color: #ffffff;
+    --navigation-icon-background-color: #ececec;
+
+    --card-box-shadow-color: rgba(187, 187, 187, 0.34);
+    --card-tags-color: #c5c5c5;
+
+    --lane-title-box-shadow-color: rgba(187, 187, 187, 0.4);
+
+    --basic-dark-text-color: #4b4b4b;
+    --basic-hover-color: #e0e0e0;
 }
