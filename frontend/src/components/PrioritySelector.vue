@@ -2,20 +2,25 @@
     <div class="priority-selector">
         <v-tooltip top :text=priorityTitle location="top">
             <template v-slot:activator="{ props }">
-                <i class="fa-solid fa-flag selector-icon" :style="priorityStyle" @click="toggleSelector"
-                   v-bind="props"/>
+                <i class="fa-solid fa-flag selector-icon"
+                   :style="priorityStyle"
+                   @click="toggleSelector"
+                   v-bind="props"
+                   role="button"/>
             </template>
         </v-tooltip>
         <div class="priority-selector-overlay" v-if="shouldShowSelector">
             <div class="priority-selector-line"
                  v-for="priority in selectablePriorities"
                  @click="selectPriority(priority)"
+                 role="button"
             >
                 <i class="fa-solid fa-flag selector-icon" :style="getColorStyleForPriority(priority)"/>
                 <span class="ml-1">{{ getTitleForPriority(priority) }}</span>
                 <i class="fa-solid fa-check ml-auto" v-if="priority == currentPriority"/>
             </div>
         </div>
+        <BackgroundBlocker v-if="shouldShowSelector" @click="toggleSelector"/>
     </div>
 </template>
 
@@ -24,9 +29,11 @@
 import type {PropType} from "vue";
 import {defineComponent} from "vue";
 import {Priority} from "@/enum/priority";
+import BackgroundBlocker from "@/components/utils/BackgroundBlocker.vue";
 
 export default defineComponent({
     name: "PrioritySelector",
+    components: {BackgroundBlocker},
     props: {
         currentPriority: {
             type: Number as PropType<Priority>,

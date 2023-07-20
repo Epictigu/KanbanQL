@@ -23,6 +23,7 @@
                 </div>
             </div>
         </div>
+        <BackgroundBlocker v-if="shouldShowTagList" @click="toggleTagEditor"/>
         <Modal ref="addTagModal" save-button-text="Hinzufügen" @modalSave="addTag">
             <template v-slot:modal-title>
                 Neuen Tag erstellen
@@ -47,10 +48,12 @@ import TagView from "@/components/TagView.vue";
 import {useTagStore} from "@/stores/tagStore";
 import type {Tag} from "@/model/tag";
 import Modal from "@/components/utils/Modal.vue";
+import BackgroundBlocker from "@/components/utils/BackgroundBlocker.vue";
 
 export default defineComponent({
     name: "TicketCard",
     components: {
+        BackgroundBlocker,
         Modal,
         TagView,
         PrioritySelector
