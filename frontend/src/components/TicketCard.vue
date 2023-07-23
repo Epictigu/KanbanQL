@@ -24,7 +24,7 @@
                 </div>
             </div>
         </div>
-        <BackgroundBlocker v-if="shouldShowTagList" @click="toggleTagEditor" :custom-z-index=14/>
+        <BackgroundBlocker v-if="shouldShowTagList" @click="toggleTagEditor" :custom-z-index="14"/>
         <Modal ref="addTagModal" save-button-text="Hinzufügen" @modalSave="addTag">
             <template v-slot:modal-title>
                 Neuen Tag erstellen
