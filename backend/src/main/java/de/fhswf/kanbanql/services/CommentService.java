@@ -7,10 +7,13 @@ import de.fhswf.kanbanql.request.create.CreateCommentRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Date;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -18,8 +21,7 @@ public class CommentService {
     private final TicketRepository ticketRepository;
     private final CommentRepository commentRepository;
 
-    private List<Comment> newComments = new ArrayList<>();
-
+    @Nonnull
     public Comment createComment(CreateCommentRequest commentRequest) {
         Comment comment = new Comment();
 
@@ -29,13 +31,22 @@ public class CommentService {
             comment.setTicket(ticketRepository.getReferenceById(commentRequest.getTicketId()));
         }
 
-        newComments.add(comment);
         return commentRepository.save(comment);
     }
 
-    public List<Comment> flushNewComments() {
-        List<Comment> flushedComments = newComments;
-        newComments = new ArrayList<>();
-        return flushedComments;
+    @Nonnull
+    public List<Comment> getAllComments() {
+        return commentRepository.findAll();
+    }
+
+    @Nullable
+    public Comment getCommentById(String id) {
+        return commentRepository.findById(id)
+                .orElse(null);
+    }
+
+    @Nonnull
+    public List<Comment> getAllCommentsForTicketId(String ticketId) {
+        return commentRepository.findByTicket_Id(ticketId);
     }
 }

@@ -7,6 +7,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.annotation.Nonnull;
+
 @Configuration
 @Profile("dev")
 public class GraphQLCorsConfiguration {
@@ -15,7 +17,7 @@ public class GraphQLCorsConfiguration {
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(final CorsRegistry registry) {
+            public void addCorsMappings(@Nonnull CorsRegistry registry) {
                 registry.addMapping("/graphql/**")
                         .allowedOrigins(CorsConfiguration.ALL)
                         .allowedHeaders(CorsConfiguration.ALL)

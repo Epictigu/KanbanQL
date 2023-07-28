@@ -2,6 +2,7 @@ package de.fhswf.kanbanql.request.update;
 
 import de.fhswf.kanbanql.model.Priority;
 import de.fhswf.kanbanql.model.Status;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 public class UpdateTicketRequest {
 
     private String id;

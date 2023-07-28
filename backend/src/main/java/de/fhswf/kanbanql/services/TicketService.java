@@ -1,57 +1,51 @@
 package de.fhswf.kanbanql.services;
 
-import de.fhswf.kanbanql.model.*;
-import de.fhswf.kanbanql.repositories.CommentRepository;
+import de.fhswf.kanbanql.model.Priority;
+import de.fhswf.kanbanql.model.Status;
+import de.fhswf.kanbanql.model.Tag;
+import de.fhswf.kanbanql.model.Ticket;
 import de.fhswf.kanbanql.repositories.TagRepository;
 import de.fhswf.kanbanql.repositories.TicketRepository;
-import de.fhswf.kanbanql.request.create.CreateTagRequest;
 import de.fhswf.kanbanql.request.create.CreateTicketRequest;
 import de.fhswf.kanbanql.request.update.UpdateTagRequest;
 import de.fhswf.kanbanql.request.update.UpdateTicketRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@ParametersAreNonnullByDefault
 @Service
 @RequiredArgsConstructor
 public class TicketService {
 
-    private final TicketRepository ticketRepository;
+    static final Status DEFAULT_STATUS = Status.BACKLOG;
+    static final Priority DEFAULT_PRIORITY = Priority.LOW;
 
+    private final TicketRepository ticketRepository;
     private final TagRepository tagRepository;
 
-    private final CommentRepository commentRepository;
-
+    @Nullable
     public Ticket getTicketById(String id) {
-        return ticketRepository.getReferenceById(id);
+        return ticketRepository.findById(id).orElse(null);
     }
 
+    @Nonnull
     public List<Ticket> getAllTickets() {
         return ticketRepository.findAll();
     }
 
-
+    @Nonnull
     public Ticket createTicket(@Nonnull CreateTicketRequest ticketRequest) {
-
         Ticket ticket = new Ticket();
+
         ticket.setTitle(ticketRequest.getTitle());
-
-        if (ticketRequest.getStatus() == null) {
-            ticket.setStatus(Status.BACKLOG);
-        } else {
-            ticket.setStatus(ticketRequest.getStatus());
-        }
-
-        if (ticketRequest.getPriority() == null) {
-            ticket.setPriority(Priority.LOW);
-        } else {
-            ticket.setPriority(ticketRequest.getPriority());
-        }
-
+        ticket.setStatus(determineStatus(ticketRequest));
+        ticket.setPriority(determinePriority(ticketRequest));
         ticket.setTags(new HashSet<>());
         ticket.setComments(new ArrayList<>());
         ticket.setCreationDate(new Date());
@@ -59,114 +53,55 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
-    public Ticket updateTicket(UpdateTicketRequest updateTicketRequest) {
-
-        Ticket ticket = ticketRepository.getReferenceById(updateTicketRequest.getId());
-
-        if (updateTicketRequest.getTitle() != null) {
-            ticket.setTitle(updateTicketRequest.getTitle());
-        }
-        if (updateTicketRequest.getDescription() != null) {
-            ticket.setDescription(updateTicketRequest.getDescription());
-        }
-        if (updateTicketRequest.getStatus() != null) {
-            ticket.setStatus(updateTicketRequest.getStatus());
-        }
-        if (updateTicketRequest.getPriority() != null) {
-            ticket.setPriority(updateTicketRequest.getPriority());
-        }
-
-        if (updateTicketRequest.getTags() != null) {
-            Set<Tag> tags = new HashSet<>();
-            for (UpdateTagRequest tagRequest : updateTicketRequest.getTags()) {
-                tags.add(tagRepository.getReferenceById(tagRequest.getId()));
-            }
-            ticket.setTags(tags);
-        }
-        return ticketRepository.save(ticket);
-
+    private Status determineStatus(CreateTicketRequest ticketRequest) {
+        return Optional.ofNullable(ticketRequest.getStatus())
+                .orElse(DEFAULT_STATUS);
     }
 
-    public Ticket deleteTicket(String id) {
+    private Priority determinePriority(CreateTicketRequest ticketRequest) {
+        return Optional.ofNullable(ticketRequest.getPriority())
+                .orElse(DEFAULT_PRIORITY);
+    }
 
-        Ticket ticket = ticketRepository.getReferenceById(id);
+    @Nullable
+    public Ticket updateTicket(UpdateTicketRequest ticketRequest) {
+        Ticket ticket = ticketRepository.findById(ticketRequest.getId())
+                .orElse(null);
+        if (ticket == null) {
+            return null;
+        }
+
+        Optional.ofNullable(ticketRequest.getTitle())
+                .ifPresent(ticket::setTitle);
+        Optional.ofNullable(ticketRequest.getDescription())
+                .ifPresent(ticket::setDescription);
+        Optional.ofNullable(ticketRequest.getStatus())
+                .ifPresent(ticket::setStatus);
+        Optional.ofNullable(ticketRequest.getPriority())
+                .ifPresent(ticket::setPriority);
+        Optional.ofNullable(ticketRequest.getTags())
+                .map(this::convertUpdateTagRequestsToTags)
+                .ifPresent(ticket::setTags);
+
+        return ticketRepository.save(ticket);
+    }
+
+    private Set<Tag> convertUpdateTagRequestsToTags(List<UpdateTagRequest> tagRequests) {
+        return tagRequests.stream()
+                .map(tag -> tagRepository.findById(tag.getId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+    }
+
+    @Nullable
+    public Ticket deleteTicket(String id) {
+        Ticket ticket = ticketRepository.findById(id).orElse(null);
+        if (ticket == null) {
+            return null;
+        }
 
         ticketRepository.delete(ticket);
-
         return ticket;
     }
-
-    public Tag getTagById(String id) {
-        return tagRepository.getReferenceById(id);
-    }
-
-    public List<Tag> getAllTags() {
-        return tagRepository.findAll();
-    }
-
-    public Tag createTag(CreateTagRequest tagRequest) {
-
-        Tag tag = new Tag();
-        tag.setTagName(tagRequest.getTagName());
-
-        return tagRepository.save(tag);
-
-    }
-
-    public Tag updateTag(UpdateTagRequest tagRequest) {
-
-        Tag tag = new Tag();
-        tag.setTagName(tagRequest.getTagName());
-
-//        Set<Ticket> tickets = new HashSet<>();
-//        for (UpdateTicketRequest ticketRequest :
-//                tagRequest.getTickets()) {
-//            tickets.add(ticketRepository.getReferenceById(ticketRequest.getId()));
-//        }
-//
-//        tag.setTickets(tickets);
-
-        return tagRepository.save(tag);
-
-    }
-
-    @Transactional
-    public Tag deleteTag(String id) {
-        Tag tag = tagRepository.getReferenceById(id);
-        Set<Ticket> tickets = tag.getTickets();
-
-        tickets.forEach(ticket -> deleteTagFromTicket(ticket, id));
-        ticketRepository.saveAll(tickets);
-        tagRepository.delete(tag);
-
-        return tag;
-    }
-
-    private void deleteTagFromTicket(Ticket ticket, String tagId) {
-        Set<Tag> tags = ticket.getTags().stream()
-                .filter(tag -> !tag.getId().equals(tagId))
-                .collect(Collectors.toSet());
-        ticket.setTags(tags);
-    }
-
-    public Comment getCommentById(String id) {
-        return commentRepository.getReferenceById(id);
-    }
-
-    public List<Comment> getAllComments() {
-        return commentRepository.findAll();
-    }
-
-    public Comment updateComment() {
-        return new Comment();
-    }
-
-    public Comment deleteComment(String id) {
-
-        Comment comment = commentRepository.getReferenceById(id);
-        commentRepository.delete(comment);
-
-        return comment;
-    }
-
 }
