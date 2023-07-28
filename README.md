@@ -12,5 +12,6 @@ This instead needs to run on a local MySQL database, which expects various envir
 
 * KANBANQL_SQL_HOSTNAME = Hostname der SQL-Datenbank
 * KANBANQL_SQL_PORT = Port der SQL-Datenbank
+* KANBANQL_SQL_DATABASE = Name der Datenbank
 * KANBANQL_SQL_USERNAME = Nutzername der SQL-Datenbank
 * KANBANQL_SQL_PASSWORD = Passwort der SQL-Datenbank
