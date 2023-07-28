@@ -69,14 +69,7 @@ class CommentServiceTest {
     }
 
     @Test
-    void testCreateComment_givenNoTicketId_shouldNotGetTicket() {
-        createCommentRequest.setTicketId(null);
-        cut.createComment(createCommentRequest);
-        verify(ticketRepository, never()).getReferenceById(any());
-    }
-
-    @Test
-    void testCreateComment_givenTicketId_shouldSetTicket() {
+    void testCreateComment_shouldSetTicket() {
         when(commentRepository.save(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(ticketRepository.getReferenceById(TICKET_ID)).thenReturn(ticket);
         Comment comment = cut.createComment(createCommentRequest);
