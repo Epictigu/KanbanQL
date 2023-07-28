@@ -18,6 +18,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The service class providing various CRUD methods for the {@link Ticket ticket} data.
+ */
 @ParametersAreNonnullByDefault
 @Service
 @RequiredArgsConstructor
@@ -29,16 +32,35 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final TagRepository tagRepository;
 
-    @Nullable
-    public Ticket getTicketById(String id) {
-        return ticketRepository.findById(id).orElse(null);
-    }
-
+    /**
+     * Fetches all {@link Ticket tickets} from the database and provides them in a list.
+     *
+     * @return all persisted tickets
+     */
     @Nonnull
     public List<Ticket> getAllTickets() {
         return ticketRepository.findAll();
     }
 
+    /**
+     * Fetches a single {@link Ticket ticket} for the given id, if any are defined with that id.
+     *
+     * @param id the id for the ticket
+     * @return the {@link Ticket ticket} with the given id if it exists, otherwise null
+     */
+    @Nullable
+    public Ticket getTicketById(String id) {
+        return ticketRepository.findById(id).orElse(null);
+    }
+
+    /**
+     * Creates a new {@link Ticket ticket} based on the input given in the form a {@link CreateTicketRequest} dto. Optionally, the query can also
+     * provide a status and priority inside the data transfer object, which are otherwise set to the default values {@link #DEFAULT_STATUS} and
+     * {@link #DEFAULT_PRIORITY}.
+     *
+     * @param ticketRequest the dto containing the data for the new {@link Ticket ticket}
+     * @return the newly created {@link Ticket ticket}
+     */
     @Nonnull
     public Ticket createTicket(@Nonnull CreateTicketRequest ticketRequest) {
         Ticket ticket = new Ticket();
@@ -63,6 +85,14 @@ public class TicketService {
                 .orElse(DEFAULT_PRIORITY);
     }
 
+    /**
+     * Updates a {@link Ticket ticket} with the data in the given {@link UpdateTicketRequest} dto. The ticket that should be updated is taken directly from the id
+     * field inside the data transfer object. The query can provide a free selection of parameters inside the dto and only the existing ones are
+     * actually set inside the ticket.
+     *
+     * @param ticketRequest the dto containing the data that should be updated
+     * @return the updated ticket, if any were found with the given id, otherwise null
+     */
     @Nullable
     public Ticket updateTicket(UpdateTicketRequest ticketRequest) {
         Ticket ticket = ticketRepository.findById(ticketRequest.getId())
@@ -94,6 +124,12 @@ public class TicketService {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Deletes an existing {@link Ticket ticket} for the given id.
+     *
+     * @param id the id for the ticket that is to be deleted
+     * @return the deleted tag if a ticket with that id existed, otherwise null
+     */
     @Nullable
     public Ticket deleteTicket(String id) {
         Ticket ticket = ticketRepository.findById(id).orElse(null);

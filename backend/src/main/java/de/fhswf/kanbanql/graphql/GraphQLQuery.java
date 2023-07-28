@@ -13,6 +13,10 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
+/**
+ * This class contains the various queries provided through the graphql schema. The logic itself is located inside the various services, as to not
+ * mix different levels of code.
+ */
 @RequiredArgsConstructor
 @Controller
 public class GraphQLQuery {

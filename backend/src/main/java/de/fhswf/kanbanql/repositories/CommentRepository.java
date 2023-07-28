@@ -6,6 +6,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+/**
+ * The repository used to create, manipulate and fetch {@link Comment comment} data.
+ */
 public interface CommentRepository extends JpaRepository<Comment, String> {
 
     List<Comment> findByTicket_Id(@Param("ticket_Id") String ticketId);
